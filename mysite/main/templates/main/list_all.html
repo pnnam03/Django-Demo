@@ -1,0 +1,33 @@
+{% extends "main/base.html"%}
+{% block title %}View all lists{% endblock title %}
+{%block content%}
+<h1>Lists</h1><br>
+{% if list_cnt == 0 %}
+Empty.
+{% endif %}
+{%for list in lists%}
+<form method="post" style="border: 2px solid grey; margin-top: 2px; padding:10px">
+    {% csrf_token %}
+    <a href="{{list.id}}" class="single-list{%cycle '' '-1'%}">
+        {{list.name}}
+    </a>
+    <button type="submit" name="delete" value="{{list.id}}">Delete</button>
+    <button type="button" name="rename" value="{{list.id}}" class="rename-btn" onclick="show()">Rename</button>
+    <br>
+    
+    <script>
+        function show(id)
+        {
+            let id = document.getElementById("xxx").innerHTML;
+            document.getElementById(id).style.display="block";
+        }
+    </script>
+
+    <form method="post" action="#">
+        <input type="text" name="new-name" placeholder="Enter new name" class="rename-form" id="{{list.id}}"/>
+        <button type="submit" name="rename-btn" value="{{list.id}}" class="rename-form">Save</button>
+    </form>
+
+</form>
+{%endfor%}
+{%endblock content%}
