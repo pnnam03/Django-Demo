@@ -6,27 +6,33 @@ from .forms import CreateNewList
 
 
 def home(response):
-    return render(response, "main/home.html", {"lists" : ToDoList.objects.all()})
+    return render(response, "main/home.html", {"lists": ToDoList.objects.all()})
+
 
 def create(response):
     if response.method == "POST":
         form = CreateNewList(response.POST)
         if form.is_valid():
-            n = form.cleaned_data["name"] # decrypt name
+            n = form.cleaned_data["name"]  # decrypt name
             #check_existance = ToDoList.objects.get(name=n).count()
 
-            t = ToDoList(name = n)
+            t = ToDoList(name=n)
             t.save()
+            id = ToDoList.objects.last().id
+            # redirect to the list just created
+            return redirect('/list/' + str(id))
     form = CreateNewList()
-    return render(response, "main/create.html", {"form" : form, "lists" : ToDoList.objects.all()})
+    return render(response, "main/create.html", {"form": form, "lists": ToDoList.objects.all()})
+
 
 def list(response, id=1):
-    cur_list = ToDoList.objects.get(id = id)
+    curList = ToDoList.objects.get(id=id)
+
     if response.method == "POST":
         print(response.POST)
         if response.POST.get("save"):
-            for item in cur_list.item_set.all():
-                if response.POST.get("c" + str(item.id)) == "clicked":
+            for item in curList.item_set.all():
+                if response.POST.get("change" + str(item.id)) == "clicked":
                     item.complete = True
                 else:
                     item.complete = False
@@ -34,24 +40,25 @@ def list(response, id=1):
         elif response.POST.get("add"):
             txt = response.POST.get("new")
             if len(txt) > 0:
-                cur_list.item_set.create(text = txt, complete = False)
+                curList.item_set.create(text=txt, complete=False)
             else:
                 print("invalid")
         elif response.POST.get("delete"):
             del_id = int(response.POST.get("delete"))
-            ToDoList.objects.get(id = del_id).delete()
+            ToDoList.objects.get(id=del_id).delete()
             return redirect('/list')
 
-    return render(response, "main/list.html", {"list" : cur_list} )
+    return render(response, "main/list.html", {"list": curList})
+
 
 def list_all(response):
     if response.method == "POST":
         if response.POST.get("delete"):
             del_id = int(response.POST.get("delete"))
-            ToDoList.objects.get(id = del_id).delete()
+            ToDoList.objects.get(id=del_id).delete()
         elif response.POST.get("new-name"):
             Id = int(response.POST.get("rename-btn"))
             new_name = response.POST.get("new-name")
             ToDoList.objects.filter(id=Id).update(name=new_name)
 
-    return render(response, "main/list_all.html", {"lists" : ToDoList.objects.all(), "list_cnt" : ToDoList.objects.count()})
+    return render(response, "main/list_all.html", {"lists": ToDoList.objects.all(), "list_cnt": ToDoList.objects.count()})

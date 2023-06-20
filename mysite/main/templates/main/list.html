@@ -4,19 +4,28 @@
 <h1>{{list.name}}</h1>
 <form method = "post" action = "#">
     {% csrf_token %}
+    <input type="text" name="new" placeholder="Enter new item" style="font-size:medium">
+    <button type="submit" name="add" value="add">Add Item</button>
+    <br>
+    <button type="submit" name="save" value="save">Save status</button>
+    <button type="submit" name="delete" value="{{list.id}}">Delete List</button>
+
     <ul>
         {% for item in list.item_set.all %}
+            {% if item.complete == False %}
+                <li>
+                    <input type="checkbox", value="clicked", name="change{{item.id}}"/>{{item.text}}
+                </li>
+            {% endif %}
+        {% endfor %}
+
+        {% for item in list.item_set.all %}
             {% if item.complete == True %}
-                <li><input type="checkbox", value="clicked", name="c{{item.id}}" checked/>{{item.text}}</li>
-            {% else %}
-                <li><input type="checkbox", value="clicked", name="c{{item.id}}"/>{{item.text}}</li>
+                <li>
+                    <input type="checkbox", value="clicked", name="change{{item.id}}" checked/>{{item.text}}
+                </li>
             {% endif %}
         {% endfor %}
     </ul>
-
-    <button type="submit" name="save" value="save">Save</button>
-    <button type="submit" name="delete" value="{{list.id}}">Delete</button>
-    <input type="text" name="new">
-    <button type="submit" name="add" value="add">Add Item</button>
 </form>
 {% endblock %}
